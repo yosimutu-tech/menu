@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日のメニュー</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Opti:wght@400;700&family=Yomogi&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Kaisei Opti', serif;
+  }
+
+  .chalkboard {
+    background: #2d4a2d;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.01) 2px,
+        rgba(255,255,255,0.01) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,0.01) 3px,
+        rgba(255,255,255,0.01) 6px
+      );
+    border: 12px solid #5c3d1e;
+    border-radius: 4px;
+    box-shadow: 
+      inset 0 0 60px rgba(0,0,0,0.4),
+      0 8px 32px rgba(0,0,0,0.6),
+      0 0 0 2px #3d2a10;
+    width: 100%;
+    max-width: 480px;
+    padding: 30px 24px;
+    position: relative;
+  }
+
+  .chalkboard::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  .shop-name {
+    font-family: 'Yomogi', cursive;
+    color: #f5e6c8;
+    font-size: 13px;
+    text-align: center;
+    opacity: 0.7;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+
+  .title {
+    font-family: 'Yomogi', cursive;
+    color: #fff9e6;
+    font-size: 28px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,220,0.1);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+  }
+
+  .date {
+    font-family: 'Yomogi', cursive;
+    color: #f5e6c8;
+    font-size: 12px;
+    text-align: center;
+    opacity: 0.6;
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .divider::before, .divider::after {
+    content: '✦';
+    position: absolute;
+    top: -8px;
+    color: rgba(255,255,255,0.25);
+    font-size: 10px;
+  }
+  .divider::before { left: 10px; }
+  .divider::after { right: 10px; }
+
+  .section-title {
+    font-family: 'Yomogi', cursive;
+    color: #ffd96e;
+    font-size: 14px;
+    letter-spacing: 3px;
+    margin: 16px 0 10px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255,217,110,0.3);
+  }
+
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 4px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  .menu-item:last-child { border-bottom: none; }
+
+  .item-name {
+    font-family: 'Yomogi', cursive;
+    color: #f0f0e8;
+    font-size: 17px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    flex: 1;
+  }
+
+  .item-note {
+    font-family: 'Yomogi', cursive;
+    color: #a8d8a8;
+    font-size: 11px;
+    margin-left: 8px;
+    opacity: 0.85;
+  }
+
+  .item-price {
+    font-family: 'Kaisei Opti', serif;
+    color: #ffd96e;
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 70px;
+    text-align: right;
+    text-shadow: 0 0 8px rgba(255,217,110,0.2);
+  }
+
+  .osusume {
+    background: rgba(255,200,50,0.12);
+    border: 1px solid rgba(255,200,50,0.25);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #ffd96e;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  .sold-out .item-name {
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+  .sold-out .item-price {
+    opacity: 0.4;
+  }
+  .sold-out-badge {
+    background: rgba(255,80,80,0.2);
+    border: 1px solid rgba(255,80,80,0.3);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #ff9999;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  .footer-note {
+    font-family: 'Yomogi', cursive;
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    text-align: center;
+    margin-top: 18px;
+    line-height: 1.8;
+  }
+
+  .chalk-decoration {
+    text-align: center;
+    color: rgba(255,255,255,0.15);
+    font-size: 18px;
+    letter-spacing: 8px;
+    margin: 8px 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .menu-item:nth-child(1) { animation-delay: 0.1s; }
+  .menu-item:nth-child(2) { animation-delay: 0.2s; }
+  .menu-item:nth-child(3) { animation-delay: 0.3s; }
+  .menu-item:nth-child(4) { animation-delay: 0.4s; }
+  .menu-item:nth-child(5) { animation-delay: 0.5s; }
+  .menu-item:nth-child(6) { animation-delay: 0.6s; }
+
+  /* 編集モード */
+  .edit-btn {
+    display: block;
+    margin: 20px auto 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Yomogi', cursive;
+    font-size: 13px;
+    padding: 8px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .edit-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+
+  .admin-panel {
+    display: none;
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 480px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .admin-panel.open { display: block; }
+
+  .admin-title {
+    color: #ffd96e;
+    font-family: 'Yomogi', cursive;
+    font-size: 14px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .admin-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .admin-item input {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    color: #fff;
+    padding: 6px 10px;
+    font-family: 'Yomogi', cursive;
+    font-size: 13px;
+  }
+  .admin-item input:first-child { flex: 1; }
+  .admin-item input:last-child { width: 80px; }
+
+  .toggle-sold {
+    background: rgba(255,80,80,0.15);
+    border: 1px solid rgba(255,80,80,0.3);
+    color: #ff9999;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .toggle-sold.active {
+    background: rgba(100,200,100,0.15);
+    border-color: rgba(100,200,100,0.3);
+    color: #a8d8a8;
+  }
+
+  .update-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    background: #2d6e2d;
+    border: none;
+    color: #fff;
+    font-family: 'Yomogi', cursive;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .update-btn:hover { background: #3a8a3a; }
+</style>
+</head>
+<body>
+
+<div class="chalkboard">
+  <div class="shop-name">〜 食堂サンプル 〜</div>
+  <div class="title">今日のメニュー</div>
+  <div class="date" id="today-date"></div>
+
+  <div class="chalk-decoration">- ✦ -</div>
+
+  <div class="section-title">🍱 定 食</div>
+  <div id="teishoku-list">
+    <div class="menu-item">
+      <span class="item-name">日替わり定食</span>
+      <span class="osusume">おすすめ</span>
+      <span class="item-price">¥850</span>
+    </div>
+    <div class="menu-item">
+      <span class="item-name">焼き魚定食</span>
+      <span class="item-price">¥900</span>
+    </div>
+    <div class="menu-item sold-out">
+      <span class="item-name">唐揚げ定食</span>
+      <span class="sold-out-badge">売切れ</span>
+      <span class="item-price">¥800</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">🍜 麺 類</div>
+  <div id="men-list">
+    <div class="menu-item">
+      <span class="item-name">うどん</span>
+      <span class="item-note">温・冷</span>
+      <span class="item-price">¥550</span>
+    </div>
+    <div class="menu-item">
+      <span class="item-name">そば</span>
+      <span class="item-note">温・冷</span>
+      <span class="item-price">¥600</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">🍚 単 品</div>
+  <div id="tanpin-list">
+    <div class="menu-item">
+      <span class="item-name">ごはん（小）</span>
+      <span class="item-price">¥100</span>
+    </div>
+    <div class="menu-item">
+      <span class="item-name">みそ汁</span>
+      <span class="item-price">¥100</span>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    ※ランチタイム 11:00〜14:00<br>
+    アレルギーのある方はお気軽にご相談ください
+  </div>
+</div>
+
+<button class="edit-btn" onclick="toggleAdmin()">🍽 お店の方はこちら（編集）</button>
+
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-title">📋 メニューを更新する</div>
+  <div id="admin-items"></div>
+  <button class="update-btn" onclick="updateMenu()">✔ メニューを更新する</button>
+</div>
+
+<script>
+  // 今日の日付表示
+  const d = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('today-date').textContent = 
+    `${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
+
+  // メニューデータ
+  let menuData = [
+    { name: '日替わり定食', price: 850, soldOut: false, osusume: true },
+    { name: '焼き魚定食', price: 900, soldOut: false, osusume: false },
+    { name: '唐揚げ定食', price: 800, soldOut: true, osusume: false },
+    { name: 'うどん', price: 550, soldOut: false, osusume: false },
+    { name: 'そば', price: 600, soldOut: false, osusume: false },
+    { name: 'ごはん（小）', price: 100, soldOut: false, osusume: false },
+    { name: 'みそ汁', price: 100, soldOut: false, osusume: false },
+  ];
+
+  function toggleAdmin() {
+    const panel = document.getElementById('admin-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) renderAdmin();
+  }
+
+  function renderAdmin() {
+    const container = document.getElementById('admin-items');
+    container.innerHTML = menuData.map((item, i) => `
+      <div class="admin-item">
+        <input type="text" value="${item.name}" id="name-${i}" placeholder="メニュー名">
+        <input type="number" value="${item.price}" id="price-${i}" placeholder="金額">
+        <button class="toggle-sold ${item.soldOut ? '' : 'active'}" id="sold-${i}" onclick="toggleSold(${i})">
+          ${item.soldOut ? '売切れ' : '販売中'}
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function toggleSold(i) {
+    menuData[i].soldOut = !menuData[i].soldOut;
+    const btn = document.getElementById(`sold-${i}`);
+    btn.textContent = menuData[i].soldOut ? '売切れ' : '販売中';
+    btn.classList.toggle('active', !menuData[i].soldOut);
+  }
+
+  function updateMenu() {
+    menuData = menuData.map((item, i) => ({
+      ...item,
+      name: document.getElementById(`name-${i}`).value,
+      price: parseInt(document.getElementById(`price-${i}`).value) || item.price,
+    }));
+    alert('メニューを更新しました！');
+    document.getElementById('admin-panel').classList.remove('open');
+  }
+</script>
+</body>
+</html>
